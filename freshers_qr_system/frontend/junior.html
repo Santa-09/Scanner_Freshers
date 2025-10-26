@@ -410,90 +410,97 @@
     </div>
 
     <script>
-        // API URL - REPLACE WITH YOUR DEPLOYED WEB APP URL
-        const API_URL = "https://script.google.com/macros/s/AKfycbwBIpyl1MyfNkA8M3tfZqes-miMFunrUi9I58DCNSwI3TNYzHH1dbYuhsKz9UYU0HaPbQ/exec";
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("regForm");
+  const submitBtn = form.querySelector('button[type="submit"]');
 
-        function showMsg(message, isError = false) {
-            const msgEl = document.getElementById('msg');
-            msgEl.textContent = message;
-            msgEl.className = isError ? 'error' : 'success';
-            msgEl.style.display = 'block';
-            
-            setTimeout(() => {
-                msgEl.style.display = 'none';
-            }, 5000);
-        }
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    // Disable submit button
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
 
-        async function apiPost(data) {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                mode: "cors",
-                cache: "no-cache",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data)
-            });
-            return await response.json();
-        }
+    // Collect form data
+    const formData = {
+      action: "register",
+      data: {
+        name: document.getElementById("name").value.trim(),
+        regNo: document.getElementById("regNo").value.trim(),
+        branch: document.getElementById("branch").value,
+        section: document.getElementById("section").value.trim(),
+        type: "Junior",
+        food: document.getElementById("food").value,
+        email: document.getElementById("email").value.trim()
+      }
+    };
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const form = document.getElementById("regForm");
-            const submitBtn = document.getElementById("submitBtn");
+    // Validate form data
+    if (!validateForm(formData.data)) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Register as Junior';
+      return;
+    }
 
-            form.addEventListener("submit", async (e) => {
-                e.preventDefault();
+    try {
+      console.log('📤 Sending registration data:', formData);
+      
+      // Send using GET method (no CORS issues)
+      const res = await apiPost(formData);
+      console.log('📥 Registration response:', res);
 
-                // Disable submit button
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+      if (res.status === "ok") {
+        showMsg('✅ Registration successful! Redirecting...', false);
+        setTimeout(() => {
+          window.location.href = `success.html?regNo=${formData.data.regNo}`;
+        }, 2000);
+      } else {
+        showMsg(`❌ ${res.message || "Registration failed. Please try again."}`, true);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Register as Junior';
+      }
+    } catch (err) {
+      console.error("❌ Registration Error:", err);
+      showMsg("❌ Network error. Please check your connection and try again.", true);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Register as Junior';
+    }
+  });
 
-                const formData = {
-                    action: "register",
-                    data: {
-                        name: document.getElementById("name").value.trim(),
-                        regNo: document.getElementById("regNo").value.trim().toUpperCase(),
-                        branch: document.getElementById("branch").value,
-                        section: document.getElementById("section").value,
-                        type: "Junior",
-                        food: document.getElementById("food").value,
-                        email: document.getElementById("email").value.trim()
-                    }
-                };
-
-                // Validation
-                if (!formData.data.name || !formData.data.regNo || !formData.data.branch || 
-                    !formData.data.section || !formData.data.food || !formData.data.email) {
-                    showMsg("Please fill all required fields", true);
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register as Junior';
-                    return;
-                }
-
-                try {
-                    const res = await apiPost(formData);
-
-                    if (res.status === "ok") {
-                        showMsg("Registration successful! Redirecting...", false);
-                        
-                        // Redirect to success page after 1 second
-                        setTimeout(() => {
-                            window.location.href = `success.html?regNo=${formData.data.regNo}`;
-                        }, 1000);
-                    } else {
-                        showMsg(res.message || "Registration failed. Please try again.", true);
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register as Junior';
-                    }
-                } catch (err) {
-                    console.error("Registration Error:", err);
-                    showMsg("Network error. Please check your connection and try again.", true);
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Register as Junior';
-                }
-            });
-        });
-    </script>
+  function validateForm(data) {
+    if (!data.name) {
+      showMsg('Please enter your full name', true);
+      return false;
+    }
+    if (!data.regNo) {
+      showMsg('Please enter your registration number', true);
+      return false;
+    }
+    if (!data.branch) {
+      showMsg('Please select your branch', true);
+      return false;
+    }
+    if (!data.section) {
+      showMsg('Please enter your section', true);
+      return false;
+    }
+    if (!data.email) {
+      showMsg('Please enter your email address', true);
+      return false;
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      showMsg('Please enter a valid email address', true);
+      return false;
+    }
+    
+    return true;
+  }
+});
+</script>
 </body>
 </html>
+
 
