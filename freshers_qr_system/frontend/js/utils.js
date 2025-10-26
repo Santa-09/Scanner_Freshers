@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwUkGdpmhNW12XszW67Ab6kYAFVamsmd4ApDDuDDw9WbZ2cB7018t2aNsB_2Qm8eefAmg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyEu3nd3qwT2yLFRsh7LnuGX5EAnlCtMfhF8mQLPf-lIZ3Q0r46aHNeRs7eJgWEf5RmYw/exec";
 
 function qs(selector) {
   return document.querySelector(selector);
