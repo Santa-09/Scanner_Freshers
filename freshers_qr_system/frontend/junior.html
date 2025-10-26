@@ -400,13 +400,19 @@
 
     <script src="js/utils.js"></script>
     <!-- Add this script to junior.html -->
-    <script>
+     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const form = document.getElementById("regForm");
+            const submitBtn = form.querySelector('button[type="submit"]');
 
             form.addEventListener("submit", async (e) => {
                 e.preventDefault();
+                
+                // Disable submit button to prevent multiple submissions
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
 
+                // Collect form data
                 const formData = {
                     action: "register",
                     data: {
@@ -420,22 +426,80 @@
                     }
                 };
 
+                // Validate form data
+                if (!validateForm(formData.data)) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Register as Junior';
+                    return;
+                }
+
                 try {
+                    console.log('Sending registration data:', formData);
+                    
+                    // Send to backend
                     const res = await apiPost(formData);
+                    console.log('Registration response:', res);
 
                     if (res.status === "ok") {
-                        window.location.href = `success.html?regNo=${formData.data.regNo}`;
+                        showMsg('Registration successful! Redirecting...', false);
+                        setTimeout(() => {
+                            window.location.href = `success.html?regNo=${formData.data.regNo}`;
+                        }, 2000);
                     } else {
-                        showMsg(res.message || "Registration failed", true);
+                        showMsg(res.message || "Registration failed. Please try again.", true);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Register as Junior';
                     }
                 } catch (err) {
                     console.error("Registration Error:", err);
-                    showMsg("Network or server error. Please try again.", true);
+                    showMsg("Network error. Please check your connection and try again.", true);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Register as Junior';
                 }
             });
+
+            function validateForm(data) {
+                if (!data.name) {
+                    showMsg('Please enter your full name', true);
+                    return false;
+                }
+                if (!data.regNo) {
+                    showMsg('Please enter your registration number', true);
+                    return false;
+                }
+                if (!data.branch) {
+                    showMsg('Please select your branch', true);
+                    return false;
+                }
+                if (!data.section) {
+                    showMsg('Please enter your section', true);
+                    return false;
+                }
+                if (!data.email) {
+                    showMsg('Please enter your email address', true);
+                    return false;
+                }
+                return true;
+            }
+
+            function showMsg(message, isError = false) {
+                const msgEl = document.getElementById('msg');
+                if (msgEl) {
+                    msgEl.textContent = message;
+                    msgEl.style.color = isError ? '#ff6b6b' : '#06d6a0';
+                    msgEl.style.background = isError ? 'rgba(255, 107, 107, 0.1)' : 'rgba(6, 214, 160, 0.1)';
+                    msgEl.style.borderLeft = isError ? '4px solid #ff6b6b' : '4px solid #06d6a0';
+                    msgEl.style.display = 'block';
+                    setTimeout(() => {
+                        msgEl.textContent = '';
+                        msgEl.style.display = 'none';
+                    }, 5000);
+                }
+            }
         });
     </script>
 
 </body>
+
 
 </html>
