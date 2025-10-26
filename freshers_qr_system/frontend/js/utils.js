@@ -1,6 +1,6 @@
 // Frontend Utility Functions for Freshers Party 2025
 // ⚠️ IMPORTANT: Replace this URL with your deployed Web App URL
-const API_URL = "https://script.google.com/macros/s/AKfycbwUkGdpmhNW12XszW67Ab6kYAFVamsmd4ApDDuDDw9WbZ2cB7018t2aNsB_2Qm8eefAmg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzuLyHSkJDzB9wzMd5C7TfXyGvHJzUTbWCmm4BO2JRTJmjEzxxRSg-rtFmBfy0kCtFdhw/exec";
 
 // Helper function to select DOM elements
 function qs(selector) {
